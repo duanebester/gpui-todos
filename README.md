@@ -1,5 +1,5 @@
 # GPUI TODO App
 
-![ScreenShot](./screengrab.png)
+<img src="screengrab.png" alt="drawing" style="width:200px;"/>
 
 Basic todo list app written in GPUI
