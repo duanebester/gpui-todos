@@ -10,3 +10,4 @@ Includes:
 * Text Input
 * Global State
 * Global Theme
+* Blurred Window Appearance
