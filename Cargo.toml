@@ -3,6 +3,10 @@ name = "gpui-todo-list"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+path = "src/main.rs"
+name = "todos"
+
 [dependencies]
 gpui = { git = "https://github.com/zed-industries/zed" }
 # gpui = { path = "../zed/crates/gpui" }

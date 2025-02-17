@@ -15,7 +15,7 @@ use todo::*;
 use window::*;
 
 fn main() {
-    App::new().with_assets(Assets).run(|cx: &mut AppContext| {
+    Application::new().with_assets(Assets).run(|cx: &mut App| {
         cx.bind_keys([
             KeyBinding::new("backspace", Backspace, None),
             KeyBinding::new("delete", Delete, None),
@@ -41,11 +41,11 @@ fn main() {
         }]);
 
         let options = get_window_options(cx);
-        cx.open_window(options, |cx| {
-            blur_window(cx);
-            StateModel::init(cx);
-            Theme::init(cx);
-            TodoApp::new(cx)
+        cx.open_window(options, |win, app| {
+            blur_window(win);
+            StateModel::init(app);
+            Theme::init(app);
+            TodoApp::new(app)
         })
         .unwrap();
     });
@@ -55,7 +55,7 @@ fn main() {
 actions!(set_menus, [Quit]);
 
 // Define the quit function that is registered with the AppContext
-fn quit(_: &Quit, cx: &mut AppContext) {
+fn quit(_: &Quit, app: &mut App) {
     println!("Gracefully quitting the application . . .");
-    cx.quit();
+    app.quit();
 }

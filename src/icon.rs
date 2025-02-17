@@ -1,9 +1,9 @@
 // Mostly lifted from https://github.com/huacnlee/gpui-component/blob/main/crates/ui/src/icon.rs
 use crate::theme::Theme;
 use gpui::{
-    prelude::FluentBuilder as _, svg, AnyElement, Hsla, IntoElement, Pixels, Render, RenderOnce,
-    SharedString, StyleRefinement, Styled, Svg, View, VisualContext, WindowContext,
+    prelude::FluentBuilder as _, svg, AnyElement, App, Entity, Hsla, IntoElement, Pixels, Render, RenderOnce, SharedString, StyleRefinement, Styled, Svg, Window
 };
+use gpui::AppContext;
 
 /// A size for elements.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -41,26 +41,26 @@ impl IconName {
     }
 
     /// Return the icon as a View<Icon>
-    pub fn view(self, cx: &mut WindowContext) -> View<Icon> {
-        Icon::new(self).view(cx)
+    pub fn view(self, cx: &mut App) -> Entity<Icon> {
+        Icon::build(self).view(cx)
     }
 }
 
 impl From<IconName> for Icon {
     fn from(val: IconName) -> Self {
-        Icon::new(val)
+        Icon::build(val)
     }
 }
 
 impl From<IconName> for AnyElement {
     fn from(val: IconName) -> Self {
-        Icon::new(val).into_any_element()
+        Icon::build(val).into_any_element()
     }
 }
 
 impl RenderOnce for IconName {
-    fn render(self, _cx: &mut WindowContext) -> impl IntoElement {
-        Icon::new(self)
+    fn render(self, _: &mut Window, _cx: &mut App) -> impl IntoElement {
+        Icon::build(self)
     }
 }
 
@@ -90,8 +90,16 @@ impl Clone for Icon {
 }
 
 impl Icon {
-    pub fn new(name: IconName) -> Self {
+    pub fn new(icon: impl Into<Icon>) -> Self {
+        icon.into()
+    }
+
+    fn build(name: IconName) -> Self {
         Self::default().path(name.path())
+    }
+
+    pub fn view(self, cx: &mut App) -> Entity<Icon> {
+        cx.new(|_| self)
     }
 
     /// Set the icon path of the Assets bundle
@@ -112,11 +120,6 @@ impl Icon {
         self
     }
 
-    /// Create a new view for the icon
-    pub fn view(self, cx: &mut WindowContext) -> View<Icon> {
-        cx.new_view(|_| self)
-    }
-
     pub fn transform(mut self, transformation: gpui::Transformation) -> Self {
         self.base = self.base.with_transformation(transformation);
         self
@@ -135,8 +138,8 @@ impl Styled for Icon {
 }
 
 impl RenderOnce for Icon {
-    fn render(self, cx: &mut WindowContext) -> impl IntoElement {
-        let theme = cx.global::<Theme>();
+    fn render(self, _: &mut Window, app: &mut App) -> impl IntoElement {
+        let theme = app.global::<Theme>();
         let text_color = self.text_color.unwrap_or_else(|| theme.text.into());
 
         self.base
@@ -159,7 +162,7 @@ impl From<Icon> for AnyElement {
 }
 
 impl Render for Icon {
-    fn render(&mut self, cx: &mut gpui::ViewContext<Self>) -> impl IntoElement {
+    fn render(&mut self, _:&mut Window, cx: &mut gpui::Context<Self>) -> impl IntoElement {
         let theme = cx.global::<Theme>();
         let text_color = self.text_color.unwrap_or_else(|| theme.text.into());
 

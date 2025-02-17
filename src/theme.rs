@@ -21,9 +21,9 @@ pub struct Theme {
 impl Global for Theme {}
 
 impl Theme {
-    pub fn init(cx: &mut WindowContext) {
+    pub fn init(app: &mut App) {
         let theme = Theme::get_dark();
-        cx.set_global(theme);
+        app.set_global(theme);
     }
 
     // Catppuccin Mocha

@@ -10,20 +10,20 @@ pub struct State {
 
 #[derive(Clone)]
 pub struct StateModel {
-    pub inner: Model<State>,
+    pub inner: Entity<State>,
 }
 
 impl StateModel {
-    pub fn init(cx: &mut WindowContext) {
-        let model = cx.new_model(|_cx| State {
+    pub fn init(app: &mut App) {
+        let model = app.new(|_cx| State {
             count: 0,
             items: vec![],
         });
         let this = Self { inner: model };
-        cx.set_global(this.clone());
+        app.set_global(this.clone());
     }
 
-    pub fn update(f: impl FnOnce(&mut Self, &mut WindowContext), cx: &mut WindowContext) {
+    pub fn update(f: impl FnOnce(&mut Self, &mut App), cx: &mut App) {
         if !cx.has_global::<Self>() {
             return;
         }
@@ -32,7 +32,7 @@ impl StateModel {
         });
     }
 
-    pub fn push(&self, item: TodoItem, cx: &mut WindowContext) {
+    pub fn push(&self, item: TodoItem, cx: &mut App) {
         self.inner.update(cx, |model, cx| {
             model.items.push(item.clone());
             model.count += 1;
@@ -40,7 +40,7 @@ impl StateModel {
         });
     }
 
-    pub fn remove(&self, id: usize, cx: &mut WindowContext) {
+    pub fn remove(&self, id: usize, cx: &mut App) {
         self.inner.update(cx, |model, cx| {
             let index = model.items.iter().position(|x| x.id == id).unwrap();
             model.items.remove(index);

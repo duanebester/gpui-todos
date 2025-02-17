@@ -38,9 +38,9 @@ impl WindowBackgroundAppearanceContent {
     }
 }
 
-pub fn get_window_options(cx: &mut AppContext) -> WindowOptions {
-    let display_id_maybe = cx.displays().last().map(|d| d.id());
-    let bounds = Bounds::centered(display_id_maybe, size(px(400.0), px(600.0)), cx);
+pub fn get_window_options(app: &mut App) -> WindowOptions {
+    let display_id_maybe = app.displays().last().map(|d| d.id());
+    let bounds = Bounds::centered(display_id_maybe, size(px(400.0), px(600.0)), app);
     WindowOptions {
         display_id: display_id_maybe,
         focus: true,
@@ -57,8 +57,8 @@ pub fn get_window_options(cx: &mut AppContext) -> WindowOptions {
     }
 }
 
-pub fn blur_window(cx: &mut WindowContext) {
-    cx.set_background_appearance(WindowBackgroundAppearance::from(
+pub fn blur_window(window: &mut Window) {
+    window.set_background_appearance(WindowBackgroundAppearance::from(
         WindowBackgroundAppearanceContent::Blurred { opacity: 0.9 },
     ));
 }

@@ -12,19 +12,19 @@ pub struct TodoItem {
 }
 
 impl TodoItem {
-    fn delete(self: &mut Self, cx: &mut WindowContext) {
+    fn delete(self: &mut Self, app: &mut App) {
         StateModel::update(
-            |state, cx| {
-                state.remove(self.id, cx);
+            |state, app| {
+                state.remove(self.id, app);
             },
-            cx,
+            app,
         );
     }
 }
 
 impl RenderOnce for TodoItem {
-    fn render(self, cx: &mut WindowContext) -> impl IntoElement {
-        let theme = cx.global::<Theme>();
+    fn render(self, _: &mut Window, app: &mut App) -> impl IntoElement {
+        let theme = app.global::<Theme>();
         div()
             .flex()
             .justify_between()
@@ -47,7 +47,7 @@ impl RenderOnce for TodoItem {
                     .items_center()
                     .justify_center()
                     .child(Icon::new(IconName::Trash))
-                    .on_mouse_down(MouseButton::Left, move |_, cx| self.clone().delete(cx)),
+                    .on_mouse_down(MouseButton::Left, move |_, _, app| self.clone().delete(app)),
             )
     }
 }
@@ -57,7 +57,7 @@ pub struct TodoList {
 }
 
 impl Render for TodoList {
-    fn render(&mut self, _cx: &mut ViewContext<Self>) -> impl IntoElement {
+    fn render(&mut self, _: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
         div()
             .size_full()
             .flex()
@@ -66,8 +66,8 @@ impl Render for TodoList {
 }
 
 impl TodoList {
-    pub fn new(cx: &mut WindowContext) -> View<Self> {
-        cx.new_view(|cx| {
+    pub fn new(app: &mut App) -> Entity<Self> {
+        app.new(|cx| {
             let state = cx.global::<StateModel>().inner.clone();
             cx.subscribe(&state, |this: &mut TodoList, model, _event, cx| {
                 let items = model.read(cx).items.clone();
@@ -75,7 +75,7 @@ impl TodoList {
                     items.len(),
                     ListAlignment::Bottom,
                     Pixels(20.),
-                    move |idx, _cx| {
+                    move |idx, _win, _app| {
                         let item = items.get(idx).unwrap().clone();
                         div().child(item).into_any_element()
                     },
@@ -85,7 +85,7 @@ impl TodoList {
             .detach();
 
             TodoList {
-                state: ListState::new(0, ListAlignment::Bottom, Pixels(20.), move |_, _| {
+                state: ListState::new(0, ListAlignment::Bottom, Pixels(20.), move |_, _, _| {
                     div().into_any_element()
                 }),
             }
@@ -94,13 +94,13 @@ impl TodoList {
 }
 
 pub struct InputControl {
-    text_input: View<TextInput>,
+    text_input: Entity<TextInput>,
 }
 
 impl InputControl {
-    pub fn new(cx: &mut WindowContext) -> View<Self> {
-        cx.new_view(|cx| InputControl {
-            text_input: cx.new_view(|cx| TextInput {
+    pub fn new(app: &mut App) -> Entity<Self> {
+        app.new(|app| InputControl {
+            text_input: app.new(|cx| TextInput {
                 focus_handle: cx.focus_handle(),
                 content: "".into(),
                 placeholder: "Add todo...".into(),
@@ -113,7 +113,7 @@ impl InputControl {
             }),
         })
     }
-    fn submit(&mut self, _: &MouseDownEvent, cx: &mut ViewContext<Self>) {
+    fn submit(&mut self, _: &MouseDownEvent, _: &mut Window, cx: &mut Context<Self>) {
         StateModel::update(
             |this, cx| {
                 let item = TodoItem {
@@ -132,7 +132,7 @@ impl InputControl {
 }
 
 impl Render for InputControl {
-    fn render(&mut self, cx: &mut ViewContext<Self>) -> impl IntoElement {
+    fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let theme = cx.global::<Theme>();
         let input = div()
             .flex()
@@ -174,15 +174,15 @@ impl Render for InputControl {
 }
 
 pub struct TodoApp {
-    pub list_view: View<TodoList>,
-    pub input_view: View<InputControl>,
+    pub list_view: Entity<TodoList>,
+    pub input_view: Entity<InputControl>,
 }
 
 impl TodoApp {
-    pub fn new(cx: &mut WindowContext) -> View<Self> {
-        let list_view = TodoList::new(cx);
-        let input_view = InputControl::new(cx);
-        cx.new_view(|_| TodoApp {
+    pub fn new(app: &mut App) -> Entity<Self> {
+        let list_view = TodoList::new(app);
+        let input_view = InputControl::new(app);
+        app.new(|_| TodoApp {
             list_view,
             input_view,
         })
@@ -190,7 +190,7 @@ impl TodoApp {
 }
 
 impl Render for TodoApp {
-    fn render(&mut self, cx: &mut ViewContext<Self>) -> impl IntoElement {
+    fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let theme = cx.global::<Theme>();
         let header = div()
             .flex()
