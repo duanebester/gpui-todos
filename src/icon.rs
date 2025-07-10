@@ -1,9 +1,10 @@
 // Mostly lifted from https://github.com/huacnlee/gpui-component/blob/main/crates/ui/src/icon.rs
 use crate::theme::Theme;
-use gpui::{
-    prelude::FluentBuilder as _, svg, AnyElement, App, Entity, Hsla, IntoElement, Pixels, Render, RenderOnce, SharedString, StyleRefinement, Styled, Svg, Window
-};
 use gpui::AppContext;
+use gpui::{
+    prelude::FluentBuilder as _, svg, AnyElement, App, Entity, Hsla, IntoElement, Pixels, Render,
+    RenderOnce, SharedString, StyleRefinement, Styled, Svg, Window,
+};
 
 /// A size for elements.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -162,7 +163,7 @@ impl From<Icon> for AnyElement {
 }
 
 impl Render for Icon {
-    fn render(&mut self, _:&mut Window, cx: &mut gpui::Context<Self>) -> impl IntoElement {
+    fn render(&mut self, _: &mut Window, cx: &mut gpui::Context<Self>) -> impl IntoElement {
         let theme = cx.global::<Theme>();
         let text_color = self.text_color.unwrap_or_else(|| theme.text.into());
 
