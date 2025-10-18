@@ -1,14 +1,15 @@
 // Mostly lifted from https://github.com/huacnlee/gpui-component/blob/main/crates/ui/src/icon.rs
 use crate::theme::Theme;
-use gpui::{
-    prelude::FluentBuilder as _, svg, AnyElement, App, Entity, Hsla, IntoElement, Pixels, Render, RenderOnce, SharedString, StyleRefinement, Styled, Svg, Window
-};
 use gpui::AppContext;
+use gpui::{
+    AnyElement, App, Entity, Hsla, IntoElement, Pixels, Render, RenderOnce, SharedString,
+    StyleRefinement, Styled, Svg, Window, prelude::FluentBuilder as _, svg,
+};
 
 /// A size for elements.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Size {
-    Size(Pixels),
+    Pixels(Pixels),
     XSmall,
     Small,
     Medium,
@@ -17,7 +18,7 @@ pub enum Size {
 
 impl From<Pixels> for Size {
     fn from(size: Pixels) -> Self {
-        Size::Size(size)
+        Size::Pixels(size)
     }
 }
 
@@ -145,7 +146,7 @@ impl RenderOnce for Icon {
         self.base
             .text_color(text_color)
             .map(|this| match self.size {
-                Size::Size(px) => this.size(px),
+                Size::Pixels(px) => this.size(px),
                 Size::XSmall => this.size_3(),
                 Size::Small => this.size_3p5(),
                 Size::Medium => this.size_4(),
@@ -162,7 +163,7 @@ impl From<Icon> for AnyElement {
 }
 
 impl Render for Icon {
-    fn render(&mut self, _:&mut Window, cx: &mut gpui::Context<Self>) -> impl IntoElement {
+    fn render(&mut self, _: &mut Window, cx: &mut gpui::Context<Self>) -> impl IntoElement {
         let theme = cx.global::<Theme>();
         let text_color = self.text_color.unwrap_or_else(|| theme.text.into());
 
@@ -171,7 +172,7 @@ impl Render for Icon {
             .size_4()
             .text_color(text_color)
             .map(|this| match self.size {
-                Size::Size(px) => this.size(px),
+                Size::Pixels(px) => this.size(px),
                 Size::XSmall => this.size_3(),
                 Size::Small => this.size_3p5(),
                 Size::Medium => this.size_4(),

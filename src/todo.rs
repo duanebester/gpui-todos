@@ -12,7 +12,7 @@ pub struct TodoItem {
 }
 
 impl TodoItem {
-    fn delete(self: &mut Self, app: &mut App) {
+    fn delete(&mut self, app: &mut App) {
         StateModel::update(
             |state, app| {
                 state.remove(self.id, app);
@@ -58,10 +58,16 @@ pub struct TodoList {
 
 impl Render for TodoList {
     fn render(&mut self, _: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
-        div()
-            .size_full()
-            .flex()
-            .child(list(self.state.clone()).w_full().h_full())
+        let items = _cx.global::<StateModel>().inner.read(_cx).items.clone();
+
+        div().size_full().flex().child(
+            list(self.state.clone(), move |idx, _win, _app| {
+                let item = items.get(idx).unwrap().clone();
+                div().child(item).into_any_element()
+            })
+            .w_full()
+            .h_full(),
+        )
     }
 }
 
@@ -71,23 +77,13 @@ impl TodoList {
             let state = cx.global::<StateModel>().inner.clone();
             cx.subscribe(&state, |this: &mut TodoList, model, _event, cx| {
                 let items = model.read(cx).items.clone();
-                this.state = ListState::new(
-                    items.len(),
-                    ListAlignment::Bottom,
-                    Pixels(20.),
-                    move |idx, _win, _app| {
-                        let item = items.get(idx).unwrap().clone();
-                        div().child(item).into_any_element()
-                    },
-                );
+                this.state = ListState::new(items.len(), ListAlignment::Bottom, px(20.));
                 cx.notify();
             })
             .detach();
 
             TodoList {
-                state: ListState::new(0, ListAlignment::Bottom, Pixels(20.), move |_, _, _| {
-                    div().into_any_element()
-                }),
+                state: ListState::new(0, ListAlignment::Bottom, px(20.)),
             }
         })
     }

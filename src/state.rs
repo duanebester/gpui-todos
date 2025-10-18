@@ -27,8 +27,8 @@ impl StateModel {
         if !cx.has_global::<Self>() {
             return;
         }
-        cx.update_global::<Self, _>(|mut this, cx| {
-            f(&mut this, cx);
+        cx.update_global::<Self, _>(|this, cx| {
+            f(this, cx);
         });
     }
 
