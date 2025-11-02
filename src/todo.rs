@@ -56,12 +56,25 @@ pub struct TodoList {
     state: ListState,
 }
 
+impl TodoList {
+    fn render_entry(&mut self, ix: usize, cx: &mut Context<Self>) -> AnyElement {
+        let state = cx.global::<StateModel>().inner.clone();
+        let items = state.read(cx).items.clone();
+        let item = items.get(ix).unwrap().clone();
+        div().child(item).into_any_element()
+    }
+}
+
 impl Render for TodoList {
-    fn render(&mut self, _: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
-        div()
-            .size_full()
-            .flex()
-            .child(list(self.state.clone()).w_full().h_full())
+    fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        div().size_full().flex().child(
+            list(
+                self.state.clone(),
+                cx.processor(|this, ix, _window, cx| this.render_entry(ix, cx)),
+            )
+            .w_full()
+            .h_full(),
+        )
     }
 }
 
@@ -71,23 +84,13 @@ impl TodoList {
             let state = cx.global::<StateModel>().inner.clone();
             cx.subscribe(&state, |this: &mut TodoList, model, _event, cx| {
                 let items = model.read(cx).items.clone();
-                this.state = ListState::new(
-                    items.len(),
-                    ListAlignment::Bottom,
-                    Pixels(20.),
-                    move |idx, _win, _app| {
-                        let item = items.get(idx).unwrap().clone();
-                        div().child(item).into_any_element()
-                    },
-                );
+                this.state = ListState::new(items.len(), ListAlignment::Bottom, px(20.));
                 cx.notify();
             })
             .detach();
 
             TodoList {
-                state: ListState::new(0, ListAlignment::Bottom, Pixels(20.), move |_, _, _| {
-                    div().into_any_element()
-                }),
+                state: ListState::new(0, ListAlignment::Bottom, px(20.)),
             }
         })
     }
