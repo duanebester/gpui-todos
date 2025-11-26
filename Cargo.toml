@@ -1,16 +1,16 @@
 [package]
-name = "gpui-todo-list"
-version = "0.1.0"
-edition = "2021"
+name = "gpui-todos"
+version = "0.1.1"
+edition = "2024"
 
 [[bin]]
 path = "src/main.rs"
 name = "todos"
 
 [dependencies]
-gpui = "0.2"
-unicode-segmentation = "1.11.0"
-rust-embed = "8.2.0"
-serde = "1.0.195"
-serde_json = "1.0.111"
 anyhow = "1"
+gpui = "0.2"
+rust-embed = "8"
+serde = "1"
+serde_json = "1"
+unicode-segmentation = "1"
